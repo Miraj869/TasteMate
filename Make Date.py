@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 import csv
 
 app = Flask(__name__)
@@ -38,7 +39,7 @@ class Business(db.Model):
 
     def __repr__(self):
         return f"<Business {self.id}>"
-    
+   
 class Users(db.Model):
     user_id = db.Column(db.String(25), primary_key=True)
     username = db.Column(db.String(50), nullable=False)
@@ -53,8 +54,8 @@ class Users(db.Model):
 
 class Reviews(db.Model):
     review_id = db.Column(db.String(25), primary_key=True)
-    user_id = db.Column(db.String(25), db.ForeignKey('Users.user_id'))
-    business_id = db.Column(db.String(25), db.ForeignKey('Business.business_id'))
+    user_id = db.Column(db.String(25), db.ForeignKey(Users.user_id))
+    business_id = db.Column(db.String(25), db.ForeignKey(Business.business_id))
     stars = db.Column(db.Integer,nullable=False)
     text = db.Column(db.Text)
     date = db.Column(db.DateTime)
@@ -71,41 +72,61 @@ class Reviews(db.Model):
         return f"<Review {self.id}>"
 
 # Create the table in the database
+def clear_data(session):
+    meta = db.metadata
+    for table in reversed(meta.sorted_tables):
+        print(f'Clear table {table}')
+        session.execute(table.delete())
+    session.commit()
 with app.app_context():
     db.create_all()
+    db.session.commit()
+    clear_data(db.session)
+    db.create_all()
+    db.session.commit()
+    print("Tables made")
+    with open('Data\\business.csv', mode ='r',encoding='utf-8') as file:
+    
+        # reading the CSV file
+        csvFile = csv.reader(file)
 
+        for i,line in enumerate(csvFile):
+            # print(i)
+            if i==0:
+                continue
+            # print(len(line))
+            # print(line[1])
+            # exit()
+            # print(type(line))
+            business = Business(line[1],line[2],line[3],line[4],line[5],line[6],line[7],line[8],line[9],line[10],line[11],line[12])
+            db.session.add(business)
+    file.close()
+    print("Business table made")
+    db.session.commit()
 
-with open('Data\\business.csv', mode ='r') as file:
-   
-  # reading the CSV file
-  csvFile = csv.reader(file)
+    with open('Data\\user.csv', mode ='r',encoding='utf-8') as file:
+        # reading the CSV file
+        csvFile = csv.reader(file)
+        for i,line in enumerate(csvFile):
+            if i==0:
+                continue
+            user = Users(line[0],line[1],line[2])
+            db.session.add(user)
+    file.close()
+    print("Users table made")
+    db.session.commit()
 
-  for line in csvFile[1:]:
-        business = Business(line[0],line[1],line[2],line[3],line[4],line[5],line[6],line[7],line[8],line[9],line[10],line[11])
-        db.session.add(business)
-file.close()
-print("Business table made")
-db.session.commit()
-
-with open('Data\\user.csv', mode ='r') as file:
-    # reading the CSV file
-    csvFile = csv.reader(file)
-    for line in csvFile[1:]:
-        user = Users(line[0],line[1],line[2])
-        db.session.add(user)
-file.close()
-print("Users table made")
-db.session.commit()
-
-with open('Data\\reviews.csv', mode ='r') as file:
-    # reading the CSV file
-    csvFile = csv.reader(file)
-    for line in csvFile[1:]:
-        review = Reviews(line[0],line[1],line[2],line[3],line[4],line[5])
-        db.session.add(review)
-file.close()
-print("Reviews table made")
-db.session.commit()
+    with open('Data\\review.csv', mode ='r',encoding='utf-8') as file:
+        # reading the CSV file
+        csvFile = csv.reader(file)
+        for i,line in enumerate(csvFile):
+            if i==0:
+                continue
+            review = Reviews(line[1],line[2],line[3],line[4],line[5], None if line[6] == '' else datetime.strptime(line[6], '%Y-%m-%d %H:%M:%S'))
+            db.session.add(review)
+    file.close()
+    print("Reviews table made")
+    db.session.commit()
 
 
 
