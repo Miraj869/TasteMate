@@ -5,6 +5,9 @@ import random
 from datetime import datetime
 import json
 import haversine as hs
+import geocoder
+g = geocoder.ip('me')
+print(g.latlng)
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///TasteMateDB.db'  # SQLite URI
@@ -135,12 +138,24 @@ def get_dist(curlat,curlon,buslat,buslon):
     return hs.haversine(tuple(curlat,curlon),tuple(buslat,buslon))
 
 
-def search_name(name=None,catlist=[],showopen = False , dist = 20, curloc = None):
-    if name is not None:
-        results = Business.query.filter(Business.name.like(f'%{name}%')).all()
+def search_buss(name=None,catlist=[], showopen = False , dist = 20,filterdsit = False):
+    results = Business.query
+    if name:
+        results = results.filter(Business.name.ilike(f"%{name}%"))
+    if len(catlist):
+        for cat in catlist:
+            results = results.filter(Business.categories.ilike(f"%{cat}%"))
+    results = results.all()
+    if filterdsit:
+        g = geocoder.ip('me')
+        g = list(g.latlng)
+        results = [r for r in results if get_dist(g[0],g[1],r.latitude,r.longitude) <= dist]
+    if showopen:
+        results = [r for r in results if openclose(r.business_id) == "Open"]
     
-    if len(catlist) > 0:
+    results = sorted(results, key=lambda x: x.stars, reverse=True)
     return results
+
 
 
 '''
