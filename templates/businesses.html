@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block head %}
+	<title>Business Listings</title>
+	<style>
+		.container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-top: 50px;
+		}
+		form {
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			align-items: center;
+			margin-top: 20px;
+		}
+		form .form-group {
+			margin: 0 10px;
+		}
+    /* .form-control {
+      height: 150px; 
+      overflow-y: scroll; 
+    } */
+    body {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+		table {
+			margin-top: 20px;
+			border-collapse: collapse;
+		}
+		td, th {
+			border: 1px solid black;
+			padding: 5px;
+		}
+		.pagination {
+			margin-top: 20px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		.pagination button {
+			margin: 0 5px;
+			padding: 5px 10px;
+			border: none;
+			background-color: #007bff;
+			color: white;
+			cursor: pointer;
+		}
+	</style>
+{% endblock %}
+
+
+{% block content %}
+<!-- <div class="d-flex justify-content-center">
+  <h1>Business Listings</h1>
+</div>
+
+<form class="form-inline mb-3 justify-content-center" method="GET">
+  <div class="form-group mr-2">
+    <input type="text" name="search_query" placeholder="Search by name" class="form-control" value="{{ request.args.get('search_query', '') }}">
+  </div>
+
+  <div class="form-group mr-2">
+    <select name="cuisine_type" class="form-control">
+      <option value="">Select Cuisine</option>
+      <option value="American" {% if request.args.get('cuisine_type') == 'American' %}selected{% endif %}>American</option>
+      <option value="Italian" {% if request.args.get('cuisine_type') == 'Italian' %}selected{% endif %}>Italian</option>
+      <option value="Mexican" {% if request.args.get('cuisine_type') == 'Mexican' %}selected{% endif %}>Mexican</option>
+      <option value="Japanese" {% if request.args.get('cuisine_type') == 'Japanese' %}selected{% endif %}>Japanese</option>
+    </select>
+  </div>
+
+  <div class="form-group mr-2">
+    <input type="text" name="price_range" placeholder="Price range" class="form-control" value="{{ request.args.get('price_range', '') }}">
+  </div>
+
+  <div class="form-group mr-2">
+    <input type="text" name="opening_hours" placeholder="Opening hours" class="form-control" value="{{ request.args.get('opening_hours', '') }}">
+  </div>
+
+  <div class="form-group mr-2">
+    <input type="text" name="distance" placeholder="Distance" class="form-control" value="{{ request.args.get('distance', '') }}">
+  </div>
+
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">Search</button>
+  </div>
+</form> -->
+
+<div class="container">
+  <h1>Business Listings</h1>
+  <form method="GET">
+    <div class="form-group">
+      <input type="text" name="search_query" placeholder="Search by name" class="form-control" value="{{ request.args.get('search_query', '') }}">
+    </div>
+
+    <div class="form-group">
+      <select name="cuisine_type" class="form-control" overflow-y:scroll>
+        <option value="">Select Cuisine</option>
+        <option value="American" {% if request.args.get('cuisine_type') == 'American' %}selected{% endif %}>American</option>
+        <option value="Italian" {% if request.args.get('cuisine_type') == 'Italian' %}selected{% endif %}>Italian</option>
+        <option value="Mexican" {% if request.args.get('cuisine_type') == 'Mexican' %}selected{% endif %}>Mexican</option>
+        <option value="Japanese" {% if request.args.get('cuisine_type') == 'Japanese' %}selected{% endif %}>Japanese</option>
+        <option value="Fast Food" {% if request.args.get('cuisine_type') == 'Fast Food' %}selected{% endif %}>Fast Food</option>
+        <option value="Chicken" {% if request.args.get('cuisine_type') == 'Chicken' %}selected{% endif %}>Chicken</option>
+        <option value="Burgers" {% if request.args.get('cuisine_type') == 'Burgers' %}selected{% endif %}>Burgers</option>
+        <option value="Desserts" {% if request.args.get('cuisine_type') == 'Desserts' %}selected{% endif %}>Desserts</option>
+      </select>
+    </div>
+
+    <!-- <div class="form-group">
+      <input type="text" name="price_range" placeholder="Price range" class="form-control" value="{{ request.args.get('price_range', '') }}">
+    </div> -->
+
+    <div class="form-group">
+      <input type="text" name="opening_hours" placeholder="Opening hours" class="form-control" value="{{ request.args.get('opening_hours', '') }}">
+    </div>
+    <!-- open & close -->
+
+    <div class="form-group">
+      <input type="text" name="distance" placeholder="Distance" class="form-control" value="{{ request.args.get('distance', '') }}">
+    </div>
+
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+  </form>
+</div>
+
+{% if businesses %}
+<div class="table-responsive">
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Address</th>
+        <th>City</th>
+        <th>State</th>
+        <th>Postal Code</th>
+        <th>Stars</th>
+        <th>Review Count</th>
+        <th>Attributes</th>
+        <th>Categories</th>
+        <th>Working Hours</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set start_index = (page - 1) * per_page %}
+      {% set end_index = start_index + per_page %}
+
+      {% for business in businesses[start_index:end_index] %}
+      <tr>
+        <td><a href="{{ url_for('business_detail', business_id=business.id) }}">{{ business.name }}</a></td>
+        <td>{{ business.address }}</td>
+        <td>{{ business.city }}</td>
+        <td>{{ business.state }}</td>
+        <td>{{ business.postal_code }}</td>
+        <td>{{ business.stars }}</td>
+        <td>{{ business.review_count }}</td>
+        <td>{{ business.attributes }}</td>
+        <td>{{ business.categories }}</td>
+        <td>{{ business.working_hours }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+    <p>No businesses found.</p>
+{% endif %}
+
+<div class="pagination">
+  {% if page > 1 %}
+    <a href="{{ url_for('businesses', page=page-1) }}" class="btn btn-primary mr-2">Previous</a>
+  {% endif %}
+
+  {% if end_index < businesses|length %}
+    <a href="{{ url_for('businesses', page=page+1) }}" class="btn btn-primary mb-3">Next</a>
+  {% endif %}
+</div>
+{% endblock %}
+   

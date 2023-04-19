@@ -8,6 +8,7 @@ import haversine as hs
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///TasteMateDB.db'  # SQLite URI
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # Define your SQL schema
@@ -140,7 +141,7 @@ def search_name(name=None,catlist=[],showopen = False , dist = 20, curloc = None
         results = Business.query.filter(Business.name.like(f'%{name}%')).all()
     
     if len(catlist) > 0:
-    return results
+        return results
 
 
 '''

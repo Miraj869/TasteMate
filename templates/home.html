@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<body class="home-page">
+  <div class="container_home bg-white rounded-3 bg-opacity-75">
+    <h2 class="mb-3">Welcome, {{ user.username }}!</h2>
+    <p class="lead" style="text-align: center;">Thank you for using our Food Recommendation and Review System. Here, you can find and review local businesses that serve delicious food!</p>
+    <p style="text-align: center;">Use the navigation bar to search for businesses by category, leave a review for a business you've visited, or log out of your account.</p>
+    <hr>
+    <h3 class="mb-3">Featured Businesses</h3>
+
+      <main class="page-content" style="color:whitesmoke">
+        <div class="card">
+            <div class="content1" style="color:whitesmoke">
+                <!-- <h2 class="title">Mountain View</h2> -->
+                <h2 class="title">{{ random_businesses[0].name }}</h2>
+                <!-- <p class="copy">Check out all of these gorgeous mountain trips with beautiful views of, you guessed it, the mountains</p> -->
+                <p class="copy">{{ random_businesses[0].categories }}</p>
+                <button class="btn" style="color:whitesmoke; border: 2px solid white;" onclick="window.location.href = '{{ url_for('business_detail', business_id=random_businesses[0].id) }}'">Know More</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="content1" style="color:whitesmoke">
+                <!-- <h2 class="title">To The Beach</h2> -->
+                <h2 class="title">{{ random_businesses[1].name }}</h2>
+                <!-- <p class="copy">Plan your next beach trip with these fabulous destinations</p> -->
+                <p class="copy">{{ random_businesses[1].categories }}</p>
+                <button class="btn" style="color:whitesmoke; border: 2px solid white;" onclick="window.location.href = '{{ url_for('business_detail', business_id=random_businesses[1].id) }}'">Know More</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="content1" style="color:whitesmoke">
+                <!-- <h2 class="title">Desert Destinations</h2> -->
+                <h2 class="title">{{ random_businesses[2].name }}</h2>
+                <!-- <p class="copy">It's the desert you've always dreamed of</p> -->
+                <p class="copy">{{ random_businesses[2].categories }}</p>
+                <button class="btn" style="color:whitesmoke; border: 2px solid white;" onclick="window.location.href = '{{ url_for('business_detail', business_id=random_businesses[2].id) }}'">Know More<button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="content1" style="color:whitesmoke">
+                <!-- <h2 class="title">Explore The Galaxy</h2> -->
+                <h2 class="title">{{ random_businesses[3].name }}</h2>
+                <!-- <p class="copy">Seriously, straight up, just blast off into outer space today</p> -->
+                <p class="copy">{{ random_businesses[3].categories }}</p>
+                <button class="btn" style="color:whitesmoke; border: 2px solid white;"  onclick="window.location.href = '{{ url_for('business_detail', business_id=random_businesses[3].id) }}'">Know More<button>
+            </div>
+        </div>
+    </main>
+  </div>
+</body>
+{% endblock %}

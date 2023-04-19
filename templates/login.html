@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Login Page</title>
+<!-- <style>
+  body {
+    background-image: url('../images/images(1).jpg') !important;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+</style> -->
+{% endblock %}
+
+{% block content %}
+<!-- <h2>Login</h2> -->
+<body class="login-page">
+{% if message %}
+  <div class="alert alert-danger">{{ message }}</div>
+{% endif %}
+
+<main class="form-signin bg-white rounded-3 bg-opacity-75">
+  <form method="post" action="{{ url_for('login') }}">
+    {{ form.hidden_tag() }}
+    <!-- <img class="mb-4" src="/docs/5.1/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57"> -->
+    <img class="mb-4 icon " src="static/images/logo-no-background.svg" >
+    <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+
+    <div class="form-floating">
+      <!-- <input type="username" class="form-control" id="floatingInput"> -->
+      <!-- <label for="floatingInput">Username</label> -->
+      {{ form.userid(size=32, class="form-control", id="floatingUsername") }}
+      <label for="floatingUsername">{{ form.userid.label }}</label>
+    </div>
+    <div class="form-floating mt-3">
+      <!-- <input type="password" class="form-control" id="floatingPassword" placeholder="Password"> -->
+      <!-- <label for="floatingPassword">Password</label> -->
+      {{ form.password(size=32, class="form-control", id="floatingPassword") }}
+      <label for="floatingPassword">{{ form.password.label }}</label>
+    </div>
+
+    <div class="checkbox mb-3">
+      <!-- <label>
+        <input type="checkbox" value="remember-me"> Remember me
+      </label> -->
+      {{ form.remember_me(class="form-check-input") }} {{ form.remember_me.label(class="form-check-label") }}
+    </div>
+    <button class="btn btn-primary" type="submit">Sign in</button>
+    <button class="btn btn-primary" type="submit" onclick="window.location.href='/register'">Register</button>
+    <!-- <button class="w-100 btn btn-lg btn-primary" type="submit" onclick="window.location.href='/register'">Register</button> -->
+    <p class="mt-5 mb-3 text-muted">&copy; 2023</p>
+  </form>
+</main>
+</body>
+{% endblock %}
