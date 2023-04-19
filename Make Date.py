@@ -2,12 +2,14 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import csv
+from flask_login import UserMixin
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///TasteMateDB.db'  # SQLite URI
 db = SQLAlchemy(app)
 
 # Define your SQL schema
+
 class Business(db.Model):
     business_id = db.Column(db.String(25), primary_key=True)
     name = db.Column(db.String(255))
@@ -36,11 +38,13 @@ class Business(db.Model):
         self.hours = hours
         self.review_count = review_count
 
-
+    def get_id(self):
+        return (self.business_id)
+    
     def __repr__(self):
-        return f"<Business {self.id}>"
+        return f"<Business {self.name}>"
    
-class Users(db.Model):
+class Users(UserMixin,db.Model):
     user_id = db.Column(db.String(25), primary_key=True)
     username = db.Column(db.String(50), nullable=False)
     password = db.Column(db.String(20), nullable=False)
@@ -49,8 +53,12 @@ class Users(db.Model):
         self.user_id = user_id
         self.username = username
         self.password = password
+
+    def get_id(self):
+        return (self.user_id)
+    
     def __repr__(self):
-        return f"<User {self.id}>"
+        return f"<User {self.username}>"
 
 class Reviews(db.Model):
     review_id = db.Column(db.String(25), primary_key=True)
@@ -68,6 +76,9 @@ class Reviews(db.Model):
         self.text = text
         self.date = date
 
+    def get_id(self):
+        return (self.review_id)
+    
     def __repr__(self):
         return f"<Review {self.id}>"
 

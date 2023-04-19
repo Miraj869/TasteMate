@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired, EqualTo, Length
 from flask_login import LoginManager, UserMixin, login_user, current_user, logout_user, login_required
 
 class LoginForm(FlaskForm):
-    userid = StringField('UserID', validators=[DataRequired()])
+    user_id = StringField('user_id', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Log In')

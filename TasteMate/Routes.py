@@ -1,4 +1,5 @@
-from flask import  render_template, request, redirect, url_for, flash, session, Response
+from flask import  render_template, request, redirect, url_for, flash, session, make_response
+from flask_login import login_user
 from TasteMate import app
 from TasteMate.Models import *
 from TasteMate.Forms import *
@@ -9,13 +10,9 @@ import requests
 import csv
 import io
 import json
+from TasteMate.Models import *
+# import oidc
 
-login_manager = LoginManager()
-login_manager.init_app(app)
-
-@login_manager.user_loader
-def load_user(user_id):
-    return Users.query.get(int(user_id))   
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -33,13 +30,18 @@ def login():
     #     else:
     #         flash('Invalid username or password', 'danger')
     if form.validate_on_submit():
-        userid = request.form['userid']
+        user_id = request.form['user_id']
+        # print(userid)
         password = request.form['password']
-        print(userid)
-        print(password)
-        if validate_user(userid, password):
+        # print(userid)
+        # print(password)
+        # if validate_user(userid, password):
+        user = Users.query.filter_by(user_id=user_id).first()
+        if user and user.password == password:
             print("Validated")
-            return redirect(url_for('home'))
+            login_user(user, remember=False)
+            print(user)
+            return redirect(url_for('home', user=user.user_id))
         else:
             flash('Incorrect username or password')
             return redirect('/')
@@ -56,25 +58,17 @@ def login():
 #         return redirect(url_for('login'))
 #     return render_template('register.html', title='Sign Up', form=form, current_user=current_user)
 
-@app.route('/home')
-def home():
-    if 'user_id' in session:
-        # business_id1 = 1
-        # business_id2 = 2
-        # business_id3 = 3
-        # business_id4 = 4
-        # business1 = Business.query.get_or_404(business_id1)
-        # business2 = Business.query.get_or_404(business_id2)
-        # business3 = Business.query.get_or_404(business_id3)
-        # business4 = Business.query.get_or_404(business_id4)
+@app.route('/home/<user>')
+# @oidc.accept_token(True)
+def home(user=None):
+    # print(user)
+    if user:
+        # print(user.user_id)
         businesses = Business.query.all()
-        # business1 = random.choice(businesses)
-        # business2 = random.choice(businesses)
-        # business3 = random.choice(businesses)
-        # business4 = random.choice(businesses)
         random_businesses = random.sample(businesses, k=4)
-        user = Users.query.filter_by(id=session['user_id']).first()
-        return render_template('home.html', title='Home', user=user, random_businesses=random_businesses)
+        # user = Users.query.filter_by(id=session['user_id']).first()
+        user1 = Users.query.filter_by(user_id=user).first()
+        return render_template('home.html', title='Home', user=user1, random_businesses=random_businesses)
     else:
         return redirect(url_for('login', current_user=current_user))
 
@@ -109,7 +103,7 @@ def businesses():
 
     return render_template('businesses.html', businesses=businesses, page=page, per_page=per_page, current_user=current_user)
 
-@app.route('/businesses/<int:business_id>')
+@app.route('/businesses/<string:business_id>')
 def business_detail(business_id, page=1):
     business = Business.query.get_or_404(business_id)
     reviews = Reviews.query.filter_by(business_id=business_id).all()

@@ -96,14 +96,14 @@ def delete_review(review_id):
     db.session.commit()
 
 
-def validate_user(user_id,password):
-    print("Inside Function")
-    user = Users.query.filter_by(user_id = user_id).first()
-    print(user)
-    if user and user.password == password:
-        return True
-    else:
-        return False
+# def validate_user(user_id,password):
+#     print("Inside Function")
+#     user = Users.query.filter_by(user_id = user_id).first()
+#     print(user)
+#     if user and user.password == password:
+#         return True
+#     else:
+#         return False
 
 def add_user(user_id,username,password):
     user = Users.query.filter_by(user_id = user_id).first()
