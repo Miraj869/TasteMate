@@ -2,6 +2,9 @@ from flask import Flask,request
 from flask_sqlalchemy import SQLAlchemy
 import string
 import random
+from datetime import datetime
+import json
+import haversine as hs
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///TasteMateDB.db'  # SQLite URI
@@ -96,6 +99,50 @@ def delete_review(review_id):
     rev.delete()
     db.session.commit()
 
+
+def validate_user(user_id,password):
+    user = Users.query.filter_by(user_id = user_id).first()
+    if user and user.password == password:
+        return True
+    else:
+        return False
+
+def add_user(user_id,username,password):
+    user = Users.query.filter_by(user_id = user_id).first()
+    if user:
+        return False
+    else:
+        new_user = Users(user_id,username,password)
+        db.session.add(new_user)
+        db.session.commit()
+
+def openclose(business_id):
+    days = {0:'Monday',1:'Tuesday',2:'Wednesday',3:'Thursday',4:'Friday',5:'Saturday',6:'Sunday'}
+    bus = Business.query.filter_by(business_id = business_id).first()
+    now = int((''.join(datetime.now().strftime("%d/%m/%Y %H:%M:%S").split(" ")[1].strip().split(":")))[:-2])
+    if bus.hours is None:
+        return "Data Not Available"
+    today = days[datetime.weekday()]
+    timing = json.loads(bus.hours.replace("'","\""))
+    opt = int(''.join(timing[today].split("-")[0].strip().split(":")))
+    clt = opt = int(''.join(timing[today].split("-")[1].strip().split(":")))
+    if today not in timing or now < opt or now > clt:
+        return "Closed"
+    else:
+        return "Open"
+    
+def get_dist(curlat,curlon,buslat,buslon):
+    return hs.haversine(tuple(curlat,curlon),tuple(buslat,buslon))
+
+
+def search_name(name=None,catlist=[],showopen = False , dist = 20, curloc = None):
+    if name is not None:
+        results = Business.query.filter(Business.name.like(f'%{name}%')).all()
+    
+    if len(catlist) > 0:
+    return results
+
+
 '''
 validate func inp = user_id pass out true false in app.py
 add user inp = user_d username pass add to users table
@@ -103,5 +150,6 @@ get bus res input dict based on cat.pkl out buss list
 open/close based on cur time and day inp check box and cur time date
 distance input lat log range
 business name input business name
-user reviews
+user reviews input user_id
+busines reviews input business_id
 '''
