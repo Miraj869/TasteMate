@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
-
+from flask_login import LoginManager, current_user
 
 
 app = Flask(__name__)
@@ -17,5 +16,9 @@ from TasteMate.Models import Users
 @login_manager.user_loader
 def load_user(user_id):
     return Users.query.get(user_id)
+
+def is_user_logged_in():
+    return current_user.is_authenticated
+
 
 from TasteMate import Routes

@@ -105,35 +105,51 @@ def delete_review(review_id):
 #     else:
 #         return False
 
-def add_user(user_id,username,password):
-    user = Users.query.filter_by(user_id = user_id).first()
-    if user:
-        return False
-    else:
-        new_user = Users(user_id,username,password)
-        db.session.add(new_user)
-        db.session.commit()
+# def add_user(user_id,username,password):
+#     user = Users.query.filter_by(user_id = user_id).first()
+#     if user:
+#         return False
+#     else:
+#         new_user = Users(user_id,username,password)
+#         db.session.add(new_user)
+#         db.session.commit()
 
 def openclose(business_id):
     days = {0:'Monday',1:'Tuesday',2:'Wednesday',3:'Thursday',4:'Friday',5:'Saturday',6:'Sunday'}
     bus = Business.query.filter_by(business_id = business_id).first()
     now = int((''.join(datetime.now().strftime("%d/%m/%Y %H:%M:%S").split(" ")[1].strip().split(":")))[:-2])
-    if bus.hours is None:
+    if bus.hours is None or len(bus.hours) < 5:
         return "Data Not Available"
-    today = days[datetime.weekday()]
-    timing = json.loads(bus.hours.replace("'","\""))
+    today = days[datetime.now().weekday()]
+    # print('here')
+    # print(bus.hours.replace("'","\""))
+    # print('here')
+    try:
+        timing = json.loads(bus.hours.replace("'","\""))
+    except:
+        print('here')
+        print(bus.hours.replace("'","\""))
+        print('here')
+        return "Data Not Available"
+    if today not in timing:
+        return "Closed"
     opt = int(''.join(timing[today].split("-")[0].strip().split(":")))
     clt = opt = int(''.join(timing[today].split("-")[1].strip().split(":")))
-    if today not in timing or now < opt or now > clt:
+    if now < opt or now > clt:
         return "Closed"
     else:
         return "Open"
     
 def get_dist(curlat,curlon,buslat,buslon):
-    return hs.haversine(tuple(curlat,curlon),tuple(buslat,buslon))
+    return hs.haversine(tuple([curlat,curlon]),tuple([buslat,buslon]))
 
 
 def search_buss(name=None,catlist=[], showopen = False , dist = 20,filterdist = False):
+    # print(f"name: {name}")
+    # print(f"Catlist: {catlist}")
+    # print(f"Open: {showopen}")
+    # print(dist)
+    # print(filterdist)
     results = Business.query
     if name:
         results = results.filter(Business.name.ilike(f"%{name}%"))
@@ -144,7 +160,7 @@ def search_buss(name=None,catlist=[], showopen = False , dist = 20,filterdist = 
     if filterdist:
         g = geocoder.ip('me')
         g = list(g.latlng)
-        results = [r for r in results if get_dist(g[0],g[1],r.latitude,r.longitude) <= dist]
+        results = [r for r in results if get_dist(g[0],g[1],r.latitude,r.longitude) <= float(dist)]
     if showopen:
         results = [r for r in results if openclose(r.business_id) == "Open"]
     

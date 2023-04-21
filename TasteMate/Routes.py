@@ -11,6 +11,8 @@ import csv
 import io
 import json
 from TasteMate.Models import *
+import pickle
+from flask_login import login_required, current_user, login_user, logout_user
 # import oidc
 
 
@@ -47,18 +49,27 @@ def login():
             return redirect('/')
     return render_template('login.html', title='Log In', form=form, current_user=current_user)
 
-# @app.route('/register', methods=['GET', 'POST'])
-# def register():
-#     form = RegistrationForm()
-#     if form.validate_on_submit():
-#         user = Users(username=form.username.data, password=form.password.data)
-#         db.session.add(user)
-#         db.session.commit()
-#         flash('Your account has been created! You are now able to log in', 'success')
-#         return redirect(url_for('login'))
-#     return render_template('register.html', title='Sign Up', form=form, current_user=current_user)
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        # user = Users(username=form.username.data, password=form.password.data)
+        user_id = request.form['user_id']
+        user = Users.query.filter_by(user_id = user_id).first()
+        if user:
+            flash('Incorrect username or password')
+        else:
+            username = request.form['username']
+            password = request.form['password']
+            new_user = Users(user_id,username,password)
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Your account has been created! You are now able to log in', 'success')
+            return redirect(url_for('login'))
+    return render_template('register.html', title='Sign Up', form=form, current_user=current_user)
 
 @app.route('/home/<user>')
+@login_required
 # @oidc.accept_token(True)
 def home(user=None):
     # print(user)
@@ -68,32 +79,55 @@ def home(user=None):
         random_businesses = random.sample(businesses, k=4)
         # user = Users.query.filter_by(id=session['user_id']).first()
         user1 = Users.query.filter_by(user_id=user).first()
-        return render_template('home.html', title='Home', user=user1, random_businesses=random_businesses)
+        return render_template('home.html', title='Home', user=user1, random_businesses=random_businesses, current_user=current_user)
     else:
         return redirect(url_for('login', current_user=current_user))
 
 @app.route('/logout')
+@login_required
 def logout():
+    logout_user()
     session.pop('user_id', None)
     session.permanent = False
     return redirect(url_for('login', current_user=current_user))
 
 @app.route('/businesses')
 def businesses():
+    catlist = []
+    with open("Categories.pkl",'rb') as f:
+        catlist = pickle.load(f)
+
+    # print(catlist)
+    
     # Retrieve search parameters from the URL query string
     search_query = request.args.get('search_query', '')
-    opening_hours = request.args.get('opening_hours', '')
-    cuisine_type = request.args.get('cuisine_type', '')
-    price_range = request.args.get('price_range', '')
-    distance = request.args.get('distance', '')
+    showopen = False
+    distance = 20
+    filterdistance = False
+
+    if request.args.get('open-businesses-checkbox') == 'on':
+        showopen = True
+
+    print(showopen)
+
+    if request.args.get('choose-distance') == 'on':
+        filterdistance = True
+        distance = request.args.get('distance', '')
+
+    catlist1 = request.args.get('cuisine_type')
+
+    print(catlist1)
+    if not catlist1:
+        catlist1 = []
+    
 
     # Query the businesses based on the search parameters
-    businesses = Business.query.filter(
-        Business.name.like(f'%{search_query}%'),
-        Business.working_hours.like(f'%{opening_hours}%'),
-        Business.categories.like(f'%{cuisine_type}%'),
-        Business.attributes.like(f'%{price_range}%')
-    ).all()
+    # businesses = Business.query.filter(
+    #     Business.name.like(f'%{search_query}%'),
+    #     Business.hours.like(f'%{opening_hours}%'),
+    #     Business.categories.like(f'%{cuisine_type}%'),
+    #     # Business.attributes.like(f'%{price_range}%')
+    # ).all()
 
     # Get the current page from the request arguments or default to 1
     page = request.args.get('page', 1, type=int)
@@ -101,7 +135,18 @@ def businesses():
     # Set the number of businesses to display per page
     per_page = 10
 
-    return render_template('businesses.html', businesses=businesses, page=page, per_page=per_page, current_user=current_user)
+    start_index = (page - 1) * per_page
+    end_index = start_index + per_page
+
+    # if catlist1:
+    #     businesses = search_buss(name=search_query, catlist=catlist1, showopen=showopen, dist=distance, filterdist=filterdistance)
+    # else:
+    #     businesses = search_buss(name=search_query, catlist=[], showopen=showopen, dist=distance, filterdist=filterdistance)
+    businesses = search_buss(name=search_query, catlist=catlist1, showopen=showopen, dist=distance, filterdist=filterdistance)
+    print(len(businesses))
+    return render_template('businesses.html', businesses=businesses, catlist=catlist, page=page, per_page=per_page, end_index=end_index, current_user=current_user)
+    # return render_template('businesses.html', businesses=businesses, catlist=catlist, page=page, per_page=per_page, current_user=current_user)
+    
 
 @app.route('/businesses/<string:business_id>')
 def business_detail(business_id, page=1):
@@ -119,23 +164,31 @@ def business_detail(business_id, page=1):
 
     return render_template('business_detail.html', business=business, reviews=reviews, page=page, per_page=per_page, end_index=end_index)
 
-# @app.route('/businesses/<int:business_id>/reviews', methods=['POST'])
-# def add_review(business_id):
-#     user_id = session.get('user_id')
-#     if not user_id:
-#         return redirect(url_for('login', current_user=current_user))
+@app.route('/businesses/<string:business_id>/reviews', methods=['POST'])
+def insert_review(business_id):
+    # user_id = session.get('user_id')
+    # if not user_id:
+    #     return redirect(url_for('login', current_user=current_user))
 
-#     business = Business.query.get_or_404(business_id)
+    if not current_user.is_authenticated:
+        return redirect(url_for('login', current_user=current_user))
 
-#     stars = request.form['stars1']
-#     review_text = request.form['review']
-#     review_date = datetime.datetime.now()
+    # business = Business.query.get_or_404(business_id)
 
-#     review = Review(user_id=user_id, business_id=business_id, stars=stars, text=review_text, date=review_date)
-#     db.session.add(review)
-#     db.session.commit()
+    stars = request.form['stars1']
+    review_text = request.form['review']
+    review_date = datetime.datetime.now()
 
-#     return redirect(url_for('business_detail', business_id=business.id, current_user=current_user))
+    # review = Reviews(user_id=user_id, business_id=business_id, stars=stars, text=review_text, date=review_date)
+    add_review(user_id=current_user.user_id, business_id=business_id, stars=stars, text=review_text, date=review_date)
+    # db.session.add(review)
+    # db.session.commit()
+
+    return redirect(url_for('business_detail', business_id=business.id, current_user=current_user))
+
+def del_review(review_id):
+    delete_review(review_id=review_id)
+    return redirect(url_for('business_detail', business_id=business.id, current_user=current_user))
 
 # Route to handle the API call to get menu data for a restaurant
 @app.route('/get_menu/<restaurant_name>')

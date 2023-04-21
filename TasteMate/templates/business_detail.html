@@ -2,6 +2,11 @@
 
 {% block head %}
 <style>
+  .business-detail {
+    background-image: url('../static/images/snowy_texture.jpg');
+    background-repeat: no-repeat;
+	  background-size: cover;
+  }
   .container {
     display: flex;
     flex-direction: column;
@@ -14,13 +19,13 @@
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    margin-top: 20px;
+    margin-top: 10px;
   }
   form .form-group {
     margin: 0 10px;
   }
   .form-control {
-    height: 150px; 
+    height: 50px; 
     overflow-y: scroll; 
     overflow-x: scroll;
   }
@@ -38,7 +43,7 @@
     padding: 5px;
   }
   .pagination {
-    margin-top: 20px;
+    margin-top: 2px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -59,6 +64,7 @@
 {% endblock %}
 
 {% block content %}
+<body class="business-detail">
   <h1 style="margin-top: 35rem;">{{ business.name }}</h1>
   <p>Location: {{ business.address }}, {{ business.city }}, {{ business.state }}, {{ business.postal_code }}</p>
   <!-- <p>Stars: {{ business.stars }}</p> -->
@@ -88,6 +94,7 @@
           <th>Stars</th>
           <th>Review</th>
           <th>Date</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -96,10 +103,13 @@
 
         {% for review in reviews[start_index:end_index] %}
           <tr>
-            <td>{{ review.user.username }}</td>
+            <td>{{ review.user_id }}</td>
             <td>{{ review.stars }}</td>
             <td>{{ review.text }}</td>
             <td>{{ review.date.strftime('%Y-%m-%d') }}</td>
+            <td>
+
+            </td>
           </tr>
         {% endfor %}
       </tbody>
@@ -110,16 +120,16 @@
 
   <div class="pagination">
     {% if page > 1 %}
-      <a href="{{ url_for('business_detail', business_id=business.id, page=page-1) }}" class="btn btn-primary mr-2">Previous</a>
+      <a href="{{ url_for('business_detail', business_id=business.business_id, page=page-1) }}" class="btn btn-primary mr-2">Previous</a>
     {% endif %}
   
     {% if end_index < reviews|length %}
-      <a href="{{ url_for('business_detail', business_id=business.id, page=page+1) }}" class="btn btn-primary">Next</a>
+      <a href="{{ url_for('business_detail', business_id=business.business_id, page=page+1) }}" class="btn btn-primary">Next</a>
     {% endif %}
   </div>
 
   <h2 class="container">Add Review</h2>
-  <form method="POST" action="{{ url_for('add_review', business_id=business.id) }}">
+  <form method="POST" action="{{ url_for('insert_review', business_id=business.business_id) }}">
     <div class="pagination">
       <label for="stars1">Stars:</label>
       <!-- <nav class="rating">
@@ -177,4 +187,5 @@
       <button type="submit">Submit</button>
     </div>
   </form>
+</body>
 {% endblock %}

@@ -37,19 +37,25 @@
       <div class="form-floating">
         <!-- <input type="username" class="form-control" id="floatingInput"> -->
         <!-- <label for="floatingInput">Username</label> -->
-        {{ form.username(size=32, class="form-control", id="floatingUsername") }}
+        {{ form.user_id(size=25, class="form-control", id="floatingUsername") }}
+        <label for="floatingUsername">{{ form.user_id.label }}</label>
+      </div>
+      <div class="form-floating">
+        <!-- <input type="username" class="form-control" id="floatingInput"> -->
+        <!-- <label for="floatingInput">Username</label> -->
+        {{ form.username(size=50, class="form-control", id="floatingUsername") }}
         <label for="floatingUsername">{{ form.username.label }}</label>
       </div>
       <div class="form-floating mt-3">
         <!-- <input type="password" class="form-control" id="floatingPassword" placeholder="Password"> -->
         <!-- <label for="floatingPassword">Password</label> -->
-        {{ form.password(size=32, class="form-control", id="floatingPassword") }}
+        {{ form.password(size=20, class="form-control", id="floatingPassword") }}
         <label for="floatingPassword">{{ form.password.label }}</label>
       </div>
       <div class="form-floating mt-3">
         <!-- <input type="password" class="form-control" id="floatingPassword" placeholder="Password"> -->
         <!-- <label for="floatingPassword">Password</label> -->
-        {{ form.confirm_password(size=32, class="form-control", id="floatingConfirmPassword") }}
+        {{ form.confirm_password(size=20, class="form-control", id="floatingConfirmPassword") }}
         <label for="floatingConfirmPassword">{{ form.confirm_password.label }}</label>
       </div>
   
