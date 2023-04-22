@@ -4,6 +4,7 @@
 <style>
   .business-detail {
     background-image: url('../static/images/snowy_texture.jpg');
+    height: 200%;
     background-repeat: no-repeat;
 	  background-size: cover;
   }
@@ -44,8 +45,10 @@
   }
   .pagination {
     margin-top: 2px;
-    display: flex;
+    display: grid;
     justify-content: center;
+    gap: 15px;
+    /* padding: 10px; */
     align-items: center;
     margin-left: 20px;
   }
@@ -65,7 +68,7 @@
 
 {% block content %}
 <body class="business-detail">
-  <h1 style="margin-top: 35rem;">{{ business.name }}</h1>
+  <h1>{{ business.name }}</h1>
   <p>Location: {{ business.address }}, {{ business.city }}, {{ business.state }}, {{ business.postal_code }}</p>
   <!-- <p>Stars: {{ business.stars }}</p> -->
   <!-- <p>Stars</p> -->
@@ -76,7 +79,7 @@
   </div>  
 
   <div class="framemenu">
-    <form action="{{ url_for('handle_menu_request') }}" method="POST">
+    <form action="{{ url_for('handle_menu_request', business_id=business.business_id) }}" method="POST">
       <input type="hidden" name="restaurant_name" value="{{ business.name }}">
       <button type="submit" class="custom-btn btn-12 menubutton" >
         <span>Click Here!</span>
@@ -93,7 +96,7 @@
           <th>User</th>
           <th>Stars</th>
           <th>Review</th>
-          <th>Date</th>
+          <th style="    width: 100px;">Date</th>
           <th></th>
         </tr>
       </thead>
@@ -102,15 +105,65 @@
         {% set end_index = start_index + per_page %}
 
         {% for review in reviews[start_index:end_index] %}
+          {% if review.user_id == current_user.user_id %}
+          <tr>
+              <td>{{ review.user_id }}</td>
+              <td>{{ review.stars }}</td>
+              <td>{{ review.text[:300] }}...
+                <strong data-bs-toggle="modal" data-bs-target="#{{ review.user_id }}">Read more</strong>
+                <div class="modal fade" id="{{ review.user_id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">{{ review.user_id }}'s Review</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        {{ review.text }}
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </td>
+              <td>{{ review.date.strftime('%Y-%m-%d') }}</td>
+              <td>
+                <form method="POST" action="{{ url_for('insert_delete_review', business_id=business.business_id, review_id=review.review_id) }}">
+                  <div class="pagination">
+                    <button type="submit">Delete</button>
+                  </div>
+                </form>
+              </td>
+          </tr>
+          {% else %}
           <tr>
             <td>{{ review.user_id }}</td>
             <td>{{ review.stars }}</td>
-            <td>{{ review.text }}</td>
-            <td>{{ review.date.strftime('%Y-%m-%d') }}</td>
-            <td>
+            <td>{{ review.text[:300] }}...
+              <strong data-bs-toggle="modal" data-bs-target="#{{ review.user_id }}">Read more</strong>
+              <div class="modal fade" id="{{ review.user_id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="exampleModalLabel">{{ review.user_id }}'s Review</h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      {{ review.text }}
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </td>
 
-            </td>
+            <td>{{ review.date.strftime('%Y-%m-%d') }}</td>
           </tr>
+          {% endif %}
         {% endfor %}
       </tbody>
     </table>
@@ -118,18 +171,19 @@
     <p>No reviews found.</p>
   {% endif %}
 
-  <div class="pagination">
+  <div class="pagination p-3 d-flex">
+    <div>
     {% if page > 1 %}
-      <a href="{{ url_for('business_detail', business_id=business.business_id, page=page-1) }}" class="btn btn-primary mr-2">Previous</a>
-    {% endif %}
+      <a href="{{ url_for('business_detail', business_id=business.business_id, page=page-1) }}" class="btn btn-primary mr-4">Previous</a>
+    {% endif %}</div>
   
-    {% if end_index < reviews|length %}
-      <a href="{{ url_for('business_detail', business_id=business.business_id, page=page+1) }}" class="btn btn-primary">Next</a>
-    {% endif %}
+  <div>{% if end_index < reviews|length %}
+      <a href="{{ url_for('business_detail', business_id=business.business_id, page=page+1) }}" class="btn btn-primary">Next</a>   
+    {% endif %}</div>
   </div>
 
   <h2 class="container">Add Review</h2>
-  <form method="POST" action="{{ url_for('insert_review', business_id=business.business_id) }}">
+  <form method="POST" action="{{ url_for('insert_delete_review', business_id=business.business_id, review_id='None') }}">
     <div class="pagination">
       <label for="stars1">Stars:</label>
       <!-- <nav class="rating">

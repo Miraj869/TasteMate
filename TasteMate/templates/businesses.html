@@ -41,7 +41,7 @@
 		td, th {
 			border: 3px solid black;
 			padding: 5px;
-      color: teal;
+      /* color: teal; */
 		}
 		.pagination {
 			margin-top: 20px;
@@ -176,12 +176,12 @@
     <div class="form-group">
       <button type="submit" class="btn btn-primary">Search</button>
     </div>
-  </form>
+  </form> 
 </div>
 
 {% if businesses %}
-<div class="table-responsive">
-  <table class="table table-bordered">
+<div class="table-responsive tableClass table-striped-columns">
+  <!-- <table class="table table-hover">
     <thead>
       <tr>
         <th>Name</th>
@@ -189,7 +189,7 @@
         <th>City</th>
         <th>State</th>
         <th>Postal Code</th>
-        <!-- <th>Attributes</th> -->
+        <th>Attributes</th>
         <th>Categories</th>
         <th>Working Hours</th>
         <th>Stars</th>
@@ -207,7 +207,7 @@
         <td>{{ business.city }}</td>
         <td>{{ business.state }}</td>
         <td>{{ business.postal_code }}</td>
-        <!-- <td>{{ business.attributes }}</td> -->
+        <td>{{ business.attributes }}</td>
         <td>{{ business.categories }}</td>
         <td>{{ business.hours }}</td>
         <td>{{ business.stars }}</td>
@@ -215,7 +215,32 @@
       </tr>
       {% endfor %}
     </tbody>
-  </table>
+  </table> -->
+  <div class="accordion" id="accordionPanelsStayOpenExample">
+    {% set start_index = (page - 1) * per_page %}
+    {% set end_index = start_index + per_page %}
+
+    {% for business in businesses[start_index:end_index] %}
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button" type="button" style="background-color: white;" data-bs-toggle="collapse" data-bs-target="#{{ business.business_id }}" aria-expanded="true" aria-controls="{{ business.business_id }}">
+          <div  style="width: 20%;display: flex;justify-content: space-between;">
+            <div>{{ business.name }}</div>
+            <div>Stars: {{ business.stars }}</div></div>
+        </button>
+      </h2>
+      <div id="{{ business.business_id }}" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <strong>Address: </strong>{{ business.address }}, {{ business.city }}, {{ business.state }},({{ business.postal_code }})
+        <div><strong>Categories:</strong> <code>{{ business.categories }}</code></div>
+            <div><strong>Working Hours:</strong> {{ business.hours }}</div>
+            <div><strong>Review Count:</strong> {{ business.review_count }}</div>
+            <div><a class="btn btn-outline-primary" style="margin-top: 5px;" href="{{ url_for('business_detail', business_id=business.business_id) }}">link</div></a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
 </div>
 {% else %}
     <p>No businesses found.</p>

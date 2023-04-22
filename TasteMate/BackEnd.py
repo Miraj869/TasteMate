@@ -80,10 +80,15 @@ from TasteMate.Models import *
 
 
 def add_review(user_id, business_id, stars, text, date):
-    new_review = Reviews(user_id=user_id, business_id= business_id, stars=stars, text=text, date=date)        
+    rev_id = ''.join(random.choices(string.ascii_uppercase +string.digits, k=20))
+
+    while(Reviews.query.filter_by(review_id = rev_id).first()):
+        rev_id = ''.join(random.choices(string.ascii_uppercase +string.digits, k=20))
+
+    new_review = Reviews(review_id = rev_id,user_id=user_id, business_id= business_id, stars=stars, text=text, date=date)        
     db.session.add(new_review)
     bus = Business.query.filter_by(business_id = business_id).first()
-    bus.stars = (float(bus.stars)*(bus.review_count) + stars)/(bus.review_count + 1)
+    bus.stars = round((float(bus.stars)*(bus.review_count) + int(stars))/(bus.review_count + 1),2)
     bus.review_count += 1
     db.session.commit()
 
@@ -91,8 +96,9 @@ def delete_review(review_id):
     rev = Reviews.query.filter_by(review_id = review_id).first()
     bus = Business.query.filter_by(business_id = rev.business_id).first()
     bus.stars = 0 if bus.review_count == 1 else (float(bus.stars)*(bus.review_count) - rev.stars)/(bus.review_count - 1)
+    bus.stars = round(bus.stars,2)
     bus.review_count -= 1
-    rev.delete()
+    db.session.delete(rev)
     db.session.commit()
 
 

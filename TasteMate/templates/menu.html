@@ -1,7 +1,18 @@
 {% extends 'base.html' %}
 
+{% block head %}
+<title>Menu</title>
+<style>
+    .image_container {
+        width: 150;
+        height: 250;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-    <h1>{{ restaurant_name }} Menu</h1>
+    <!-- <h1>{{ restaurant_name }} Menu</h1>
     <table>
         <thead>
             <tr>
@@ -19,5 +30,41 @@
                 </tr>
             {% endfor %}
         </tbody>
-    </table>
+    </table> -->
+    {% if menu %}
+        <h1>Menu</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Photo URL</th>
+                    <th>Spice Level</th>
+                    <th>Allergen Warnings</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for section in menu.sections %}
+                    {% for item in section.section_items %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.description }}</td>
+                            <td>{{ item.price }}</td>
+                            <td>{{ item.photo_url }}</td>
+                            <td>{{ item.spice_level }}</td>
+                            <td>{{ item.allergen_warnings }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="image_container">
+            <img src="../static/images/sad.jpg">
+        </div>
+        <div>
+            <h3>No menu found.</h3>
+        </div>
+    {% endif %}
 {% endblock %}

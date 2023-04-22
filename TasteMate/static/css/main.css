@@ -7,13 +7,15 @@ header {
     top: 0;
     left: 0;
     right: 0;
+    width: 100%;
     background-color: #fff;
     padding: 20px;
     z-index: 1000;
 }
 
 footer {
-    /* position: static; */
+    width: 100%;
+    position: static;
     position: relative;
     bottom: 0;
     left: 0;
@@ -23,6 +25,7 @@ footer {
     z-index: 1000;
     text-align: left;
 }
+
 
 body, html {
     margin: 0;
@@ -81,7 +84,10 @@ table {
 }
 
 .container_home {
+    background-color: rgba(255, 255, 255, 0.94);
     width: 70%;
+    /* padding: 45px;    */
+    margin-bottom: 55px;
   }
 
 nav {
@@ -108,9 +114,10 @@ body {
 
 body {
   display: flex;
+  direction: column;
   align-items: center;
-  padding-top: 40px;
-  padding-bottom: 40px;
+  /* padding-top: 40px; */
+  /* padding-bottom: 40px; */
   /* background-color: #f5f5f5; */
 }
 .icon{
@@ -649,9 +656,12 @@ html {
 body {
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     background: #1c212e;
+    /* margin-bottom: 15px; */
+    /* margin-top: 50px; */
 }
 body .dribbble {
     position: fixed;
@@ -761,4 +771,9 @@ body .dribbble img {
     -webkit-transform: rotateX(-90deg);
     -moz-transform: rotateX(-90deg);
     transform: rotateX(-90deg);
+  }
+
+  .tableClass{
+        padding: 0px 100px;
+        width: 100%;
   }

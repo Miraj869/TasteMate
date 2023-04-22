@@ -164,8 +164,8 @@ def business_detail(business_id, page=1):
 
     return render_template('business_detail.html', business=business, reviews=reviews, page=page, per_page=per_page, end_index=end_index)
 
-@app.route('/businesses/<string:business_id>/reviews', methods=['POST'])
-def insert_review(business_id):
+@app.route('/businesses/<string:business_id>/reviews/<string:review_id>', methods=['POST'])
+def insert_delete_review(business_id, review_id='None'):
     # user_id = session.get('user_id')
     # if not user_id:
     #     return redirect(url_for('login', current_user=current_user))
@@ -174,78 +174,105 @@ def insert_review(business_id):
         return redirect(url_for('login', current_user=current_user))
 
     # business = Business.query.get_or_404(business_id)
+    # print(review_id)
+    if review_id == 'None':
+        stars = request.form['stars1']
+        review_text = request.form['review']
+        review_date = datetime.datetime.now()
 
-    stars = request.form['stars1']
-    review_text = request.form['review']
-    review_date = datetime.datetime.now()
+        add_review(user_id=current_user.user_id, business_id=business_id, stars=stars, text=review_text, date=review_date)
+    else:
+        delete_review(review_id=review_id)
 
-    # review = Reviews(user_id=user_id, business_id=business_id, stars=stars, text=review_text, date=review_date)
-    add_review(user_id=current_user.user_id, business_id=business_id, stars=stars, text=review_text, date=review_date)
-    # db.session.add(review)
-    # db.session.commit()
+    return redirect(url_for('business_detail', business_id=business_id, current_user=current_user))
 
-    return redirect(url_for('business_detail', business_id=business.id, current_user=current_user))
+# @app.route('/businesses/<string:review_id>/<string:business_id>/reviews', methods=['POST'])
+# def del_review( review_id="",business_id="",):
+#     print(business_id)
+#     print(review_id)
+#     delete_review(review_id=review_id)
 
-def del_review(review_id):
-    delete_review(review_id=review_id)
-    return redirect(url_for('business_detail', business_id=business.id, current_user=current_user))
+#     return redirect(url_for('business_detail', business_id=business_id, current_user=current_user))
 
 # Route to handle the API call to get menu data for a restaurant
-@app.route('/get_menu/<restaurant_name>')
-def get_menu(restaurant_name):
-    # print("Hello")
-    # Call the pylunch API to get the restaurant's menu in CSV format
-    api_url = 'https://pylunch.herokuapp.com/api/menus?restaurant=' + restaurant_name
-    response = requests.get(api_url)
+# @app.route('/get_menu/<restaurant_name>')
+# def get_menu(restaurant_name):
+#     # print("Hello")
+#     # Call the pylunch API to get the restaurant's menu in CSV format
+#     api_url = 'https://pylunch.herokuapp.com/api/menus?restaurant=' + restaurant_name
+#     response = requests.get(api_url)
 
-    # Check for errors with the API call
-    if response.status_code != 200:
-        return 'Error: Failed to retrieve menu data from API'
+#     # Check for errors with the API call
+#     if response.status_code != 200:
+#         return 'Error: Failed to retrieve menu data from API'
     
-    # # print(response.content)
-    # menu_data = response.json()['data']
+#     # # print(response.content)
+#     # menu_data = response.json()['data']
 
-    # Check for errors with the API response
-    try:
-        menu_data = response.json()['data']
-    except:
-        return 'Error: Invalid response from API'
+#     # Check for errors with the API response
+#     try:
+#         menu_data = response.json()['data']
+#     except:
+#         return 'Error: Invalid response from API'
 
-    # Convert the API response to CSV format
-    csv_data = io.StringIO()
-    csv_writer = csv.writer(csv_data)
-    csv_writer.writerow(['Item', 'Price', 'Image URL'])
-    for item in menu_data:
-        csv_writer.writerow([item['name'], item['price'], item['image']])
-    csv_data.seek(0)
+#     # Convert the API response to CSV format
+#     csv_data = io.StringIO()
+#     csv_writer = csv.writer(csv_data)
+#     csv_writer.writerow(['Item', 'Price', 'Image URL'])
+#     for item in menu_data:
+#         csv_writer.writerow([item['name'], item['price'], item['image']])
+#     csv_data.seek(0)
 
-    # Return the CSV data as a response
-    return csv_data.getvalue(), {'Content-Type': 'text/csv', 'Content-Disposition': 'attachment; filename=menu.csv'}
+#     # Return the CSV data as a response
+#     return csv_data.getvalue(), {'Content-Type': 'text/csv', 'Content-Disposition': 'attachment; filename=menu.csv'}
 
 # Route to handle the button click on the business_detail.html page
-@app.route('/get_menu', methods=['POST'])
-def handle_menu_request():
-    # Get the restaurant name from the form data
-    restaurant_name = request.form['restaurant_name']
+# @app.route('/get_menu', methods=['POST'])
+# def handle_menu_request():
+#     # Get the restaurant name from the form data
+#     restaurant_name = request.form['restaurant_name']
 
-    # Call the API to get the menu data
-    menu_data_csv = requests.get('http://localhost:5000/get_menu/' + restaurant_name).text
+#     # Call the API to get the menu data
+#     menu_data_csv = requests.get('http://localhost:5000/get_menu/' + restaurant_name).text
 
-    # Parse the CSV data into a list of menu items
-    menu_data = []
-    reader = csv.reader(io.StringIO(menu_data_csv))
-    next(reader)  # skip header row
-    # for row in reader:
-    #     menu_data.append({
-    #         'name': row[0],
-    #         'price': row[1],
-    #         'image': row[2],
-    #     })
-    for row in reader:
-        if len(row) >= 3:
-            menu_data.append({'name': row[0], 'price': row[1], 'image': row[2]})
-        # print(menu_data)
+#     # Parse the CSV data into a list of menu items
+#     menu_data = []
+#     reader = csv.reader(io.StringIO(menu_data_csv))
+#     next(reader)  # skip header row
+#     # for row in reader:
+#     #     menu_data.append({
+#     #         'name': row[0],
+#     #         'price': row[1],
+#     #         'image': row[2],
+#     #     })
+#     for row in reader:
+#         if len(row) >= 3:
+#             menu_data.append({'name': row[0], 'price': row[1], 'image': row[2]})
+#         # print(menu_data)
 
-    # print(menu_data)
-    # Render the menu.html template with the menu data
-    return render_template('menu.html', restaurant_name=restaurant_name, menu_data=menu_data)
+#     # print(menu_data)
+#     # Render the menu.html template with the menu data
+#     return render_template('menu.html', restaurant_name=restaurant_name, menu_data=menu_data)
+
+@app.route('/get_menu/<string:business_id>', methods=['POST'])
+def handle_menu_request(business_id):
+    # Get the restaurant ID from the request parameters
+    # restaurant_id = request.args.get('restaurant_id')
+
+    # Call the Yelp API to get the menu for the restaurant
+    headers = {
+        'Authorization': 'Bearer <YOUR_YELP_API_KEY>',
+    }
+    url = f'https://api.yelp.com/v3/businesses/{business_id}/menu'
+    response = requests.get(url, headers=headers)
+    menu_json = response.json()
+    print(menu_json)
+    # Parse the menu items from the JSON response
+    menu_items = []
+    if 'sections' in menu_json:
+        for section in menu_json['sections']:
+            for item in section['section_items']:
+                menu_items.append(item)
+
+    # Render the menu template with the menu items
+    return render_template('menu.html', menu=menu_items)
