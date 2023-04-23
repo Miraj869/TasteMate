@@ -11,6 +11,7 @@ import csv
 import io
 import json
 from TasteMate.Models import *
+from TasteMate.get_menu import *
 import pickle
 from flask_login import login_required, current_user, login_user, logout_user
 # import oidc
@@ -40,12 +41,12 @@ def login():
         # if validate_user(userid, password):
         user = Users.query.filter_by(user_id=user_id).first()
         if user and user.password == password:
-            print("Validated")
+            # flash('Congratulations! You have successfully signed in')
             login_user(user, remember=False)
             print(user)
             return redirect(url_for('home', user=user.user_id))
         else:
-            flash('Incorrect username or password')
+            flash('Incorrect User ID or Password', 'danger')
             return redirect('/')
     return render_template('login.html', title='Log In', form=form, current_user=current_user)
 
@@ -56,15 +57,25 @@ def register():
         # user = Users(username=form.username.data, password=form.password.data)
         user_id = request.form['user_id']
         user = Users.query.filter_by(user_id = user_id).first()
+        print(user)
         if user:
-            flash('Incorrect username or password')
+            print("if")
+            flash('Error! User already exists.', 'danger')
+            return redirect(url_for('register'))
         else:
+            print("inside else")
             username = request.form['username']
             password = request.form['password']
+            print(password)
+            confirm_password = request.form['confirm_password']
+            print(confirm_password)
+            if password != confirm_password:
+                flash('Error! Passwords do not match.', 'danger')
+                return redirect(url_for('register'))
             new_user = Users(user_id,username,password)
             db.session.add(new_user)
             db.session.commit()
-            flash('Your account has been created! You are now able to log in', 'success')
+            flash('Success! Your account has been created! You are now able to log in', 'success')
             return redirect(url_for('login'))
     return render_template('register.html', title='Sign Up', form=form, current_user=current_user)
 
@@ -186,93 +197,24 @@ def insert_delete_review(business_id, review_id='None'):
 
     return redirect(url_for('business_detail', business_id=business_id, current_user=current_user))
 
-# @app.route('/businesses/<string:review_id>/<string:business_id>/reviews', methods=['POST'])
-# def del_review( review_id="",business_id="",):
-#     print(business_id)
-#     print(review_id)
-#     delete_review(review_id=review_id)
 
-#     return redirect(url_for('business_detail', business_id=business_id, current_user=current_user))
-
-# Route to handle the API call to get menu data for a restaurant
-# @app.route('/get_menu/<restaurant_name>')
-# def get_menu(restaurant_name):
-#     # print("Hello")
-#     # Call the pylunch API to get the restaurant's menu in CSV format
-#     api_url = 'https://pylunch.herokuapp.com/api/menus?restaurant=' + restaurant_name
-#     response = requests.get(api_url)
-
-#     # Check for errors with the API call
-#     if response.status_code != 200:
-#         return 'Error: Failed to retrieve menu data from API'
-    
-#     # # print(response.content)
-#     # menu_data = response.json()['data']
-
-#     # Check for errors with the API response
-#     try:
-#         menu_data = response.json()['data']
-#     except:
-#         return 'Error: Invalid response from API'
-
-#     # Convert the API response to CSV format
-#     csv_data = io.StringIO()
-#     csv_writer = csv.writer(csv_data)
-#     csv_writer.writerow(['Item', 'Price', 'Image URL'])
-#     for item in menu_data:
-#         csv_writer.writerow([item['name'], item['price'], item['image']])
-#     csv_data.seek(0)
-
-#     # Return the CSV data as a response
-#     return csv_data.getvalue(), {'Content-Type': 'text/csv', 'Content-Disposition': 'attachment; filename=menu.csv'}
-
-# Route to handle the button click on the business_detail.html page
-# @app.route('/get_menu', methods=['POST'])
-# def handle_menu_request():
-#     # Get the restaurant name from the form data
-#     restaurant_name = request.form['restaurant_name']
-
-#     # Call the API to get the menu data
-#     menu_data_csv = requests.get('http://localhost:5000/get_menu/' + restaurant_name).text
-
-#     # Parse the CSV data into a list of menu items
-#     menu_data = []
-#     reader = csv.reader(io.StringIO(menu_data_csv))
-#     next(reader)  # skip header row
-#     # for row in reader:
-#     #     menu_data.append({
-#     #         'name': row[0],
-#     #         'price': row[1],
-#     #         'image': row[2],
-#     #     })
-#     for row in reader:
-#         if len(row) >= 3:
-#             menu_data.append({'name': row[0], 'price': row[1], 'image': row[2]})
-#         # print(menu_data)
-
-#     # print(menu_data)
-#     # Render the menu.html template with the menu data
-#     return render_template('menu.html', restaurant_name=restaurant_name, menu_data=menu_data)
-
-@app.route('/get_menu/<string:business_id>', methods=['POST'])
-def handle_menu_request(business_id):
+@app.route('/get_menu/<string:business_name>/<string:business_state>', methods=['POST'])
+def handle_menu_request(business_name, business_state):
     # Get the restaurant ID from the request parameters
     # restaurant_id = request.args.get('restaurant_id')
+    try:
+        menu = get_menu(business_name, business_state)
+    except:
+        menu = None
+    print(menu)
 
-    # Call the Yelp API to get the menu for the restaurant
-    headers = {
-        'Authorization': 'Bearer <YOUR_YELP_API_KEY>',
-    }
-    url = f'https://api.yelp.com/v3/businesses/{business_id}/menu'
-    response = requests.get(url, headers=headers)
-    menu_json = response.json()
-    print(menu_json)
-    # Parse the menu items from the JSON response
-    menu_items = []
-    if 'sections' in menu_json:
-        for section in menu_json['sections']:
-            for item in section['section_items']:
-                menu_items.append(item)
+    page = request.args.get('page', 1, type=int)
+
+    # Set the number of businesses to display per page
+    # per_page = 10
+
+    # start_index = (page - 1) * per_page
+    # end_index = start_index + per_page
 
     # Render the menu template with the menu items
-    return render_template('menu.html', menu=menu_items)
+    return render_template('menu.html', menu=menu, page=page)

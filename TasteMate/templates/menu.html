@@ -8,10 +8,28 @@
         height: 250;
         overflow: hidden;
     }
+    .menu {
+        background-image: url('../static/images/white_food1.jpg');
+    }
+    .head {
+        text-align: center;
+        margin-top: 50px;
+        margin-bottom: 50px;
+    }
+    table {
+        margin: 0 auto;
+        width: 80%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 10px;
+        border: 1px solid black;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
+<body class="menu">
     <!-- <h1>{{ restaurant_name }} Menu</h1>
     <table>
         <thead>
@@ -32,28 +50,24 @@
         </tbody>
     </table> -->
     {% if menu %}
-        <h1>Menu</h1>
+        <div class="head">
+            <h1>Menu</h1>
+        </div>    
         <table>
             <thead>
                 <tr>
                     <th>Name</th>
                     <th>Description</th>
                     <th>Price</th>
-                    <th>Photo URL</th>
-                    <th>Spice Level</th>
-                    <th>Allergen Warnings</th>
                 </tr>
             </thead>
             <tbody>
-                {% for section in menu.sections %}
-                    {% for item in section.section_items %}
+                {% for section in menu.keys() %}
+                    {% for item in menu[section] %}
                         <tr>
-                            <td>{{ item.name }}</td>
-                            <td>{{ item.description }}</td>
-                            <td>{{ item.price }}</td>
-                            <td>{{ item.photo_url }}</td>
-                            <td>{{ item.spice_level }}</td>
-                            <td>{{ item.allergen_warnings }}</td>
+                            <td>{{ item[0] }}</td>
+                            <td>{{ item[1] }}</td>
+                            <td>{{ item[2] }}</td>
                         </tr>
                     {% endfor %}
                 {% endfor %}
@@ -67,4 +81,5 @@
             <h3>No menu found.</h3>
         </div>
     {% endif %}
+</body>
 {% endblock %}

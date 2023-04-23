@@ -2,14 +2,66 @@
 
 {% block head %}
 <title>Register Page</title>
+<style>
+/* Flash message styling */
+.flashes {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
+
+.flashes li {
+  font-size: 16px;
+  margin: 0;
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  background-color: #f8d7da;
+  color: #721c24;
+  border-color: #f5c6cb;
+  border-radius: 4px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.flashes li.success {
+  background-color: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
+}
+
+.flashes li.warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border-color: #ffeeba;
+}
+
+.flashes li.info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border-color: #bee5eb;
+}
+
+.flashes li.danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-color: #f5c6cb;
+}
+</style>
 {% endblock %}
 
 {% block content %}
 <body class="register-page">
   <!-- <h2>Register</h2> -->
-  {% if message %}
-    <div class="alert alert-danger">{{ message }}</div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flashes">
+      {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
   {% endif %}
+  {% endwith %}
+
   <!-- <form method="post" action="{{ url_for('register') }}">
     {{ form.hidden_tag() }}
     <div class="form-group">
@@ -40,7 +92,7 @@
         {{ form.user_id(size=25, class="form-control", id="floatingUsername") }}
         <label for="floatingUsername">{{ form.user_id.label }}</label>
       </div>
-      <div class="form-floating">
+      <div class="form-floating mt-3">
         <!-- <input type="username" class="form-control" id="floatingInput"> -->
         <!-- <label for="floatingInput">Username</label> -->
         {{ form.username(size=50, class="form-control", id="floatingUsername") }}
@@ -62,6 +114,8 @@
       <button class="btn btn-primary" type="submit">Register</button>
       <button class="btn btn-primary" type="submit" onclick="window.location.href='/'">Log In</button>
       <!-- <button class="w-100 btn btn-lg btn-primary" type="submit" onclick="window.location.href='/register'">Register</button> -->
+      
+      <p class="mt-5 mb-3 text-muted">&copy; 2023 Food Recommendation System</p>
     </form>
   </div>
 </body>

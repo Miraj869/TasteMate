@@ -77,12 +77,17 @@
     var distanceCheckbox = document.getElementById("choose-distance");
     var distanceInput = document.getElementById("distance");
   
+    // Set the initial style of the input field
+    distanceInput.style.opacity = "0.5";  
+
     // Add an event listener to the checkbox to show/hide the input field
     distanceCheckbox.addEventListener("change", function() {
       if (distanceCheckbox.checked) {
         distanceInput.style.display = "block";
+        distanceInput.style.opacity = "1";
       } else {
         distanceInput.style.display = "faded";
+        distanceInput.style.opacity = "0.5";
       }
     });
   </script>
@@ -181,41 +186,6 @@
 
 {% if businesses %}
 <div class="table-responsive tableClass table-striped-columns">
-  <!-- <table class="table table-hover">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Address</th>
-        <th>City</th>
-        <th>State</th>
-        <th>Postal Code</th>
-        <th>Attributes</th>
-        <th>Categories</th>
-        <th>Working Hours</th>
-        <th>Stars</th>
-        <th>Review Count</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% set start_index = (page - 1) * per_page %}
-      {% set end_index = start_index + per_page %}
-
-      {% for business in businesses[start_index:end_index] %}
-      <tr>
-        <td><a class="link" href="{{ url_for('business_detail', business_id=business.business_id) }}">{{ business.name }}</a></td>
-        <td>{{ business.address }}</td>
-        <td>{{ business.city }}</td>
-        <td>{{ business.state }}</td>
-        <td>{{ business.postal_code }}</td>
-        <td>{{ business.attributes }}</td>
-        <td>{{ business.categories }}</td>
-        <td>{{ business.hours }}</td>
-        <td>{{ business.stars }}</td>
-        <td>{{ business.review_count }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table> -->
   <div class="accordion" id="accordionPanelsStayOpenExample">
     {% set start_index = (page - 1) * per_page %}
     {% set end_index = start_index + per_page %}
