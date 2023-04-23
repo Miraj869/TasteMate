@@ -67,9 +67,10 @@ def get_menu(restaurant_name, location):
                 ct -= 1
             if getsec:
                 # print(line)
+                if len(cur) > 1 and len(cursec) > 0:
+                    menu[cur] = cursec
                 cur = line.split('name": "')[1].split('",')[0]
                 cursec = []
-                menu[cur] = cursec
                 getsec = False
             if sec in line:
                 getsec = True
@@ -78,6 +79,9 @@ def get_menu(restaurant_name, location):
                 curitem.append(line.split('name": "')[1].split('",')[0])
                 getitem = False
             if item in line:
+                if len(curitem) == 3:
+                    cursec.append(curitem)
+                curitem = []
                 getitem = True
             if description in line:
                 if len(curitem) ==1:
@@ -85,12 +89,14 @@ def get_menu(restaurant_name, location):
             if price in line:
                 # print(line)
                 curitem.append(line.split('Price": "')[1].split('",')[0])
-                cursec.append(curitem)
-                curitem = []
+                
             
 
     os.remove('out.text')
     return menu
+
+
+
 
 
 
