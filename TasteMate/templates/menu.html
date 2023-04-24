@@ -30,25 +30,6 @@
 
 {% block content %}
 <body class="menu">
-    <!-- <h1>{{ restaurant_name }} Menu</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Price</th>
-                <th>Image</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in menu_data %}
-                <tr>
-                    <td>{{ row[0] }}</td>
-                    <td>{{ row[1] }}</td>
-                    <td><img src="{{ row[2] }}"></td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table> -->
     {% if menu %}
         <div class="head">
             <h1>Menu</h1>
