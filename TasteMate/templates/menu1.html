@@ -9,7 +9,9 @@
         overflow: hidden;
     }
     .menuone {
-        background-image: url('../static/images/white_food1.jpg');
+        background: url('/static/images/white_food1.jpg') center no-repeat;
+        width: 100%;
+        height: 100%;
     }
     .head {
         text-align: center;
@@ -37,6 +39,13 @@
 	form .form-group {
 	    margin: 0 10px;
 	}
+    .front-view {
+        width: 80%;
+        /* max-width: 330px; */
+        padding: 15px;
+        /* padding-top: 15px; */
+        margin: auto;
+    }
 </style>
 <script>
     function showOptions(select) {
@@ -48,11 +57,12 @@
 {% block content %}
 <body class="menuone">
     {% if menu %}
+    <main class="front-view bg-white rounded-3 bg-opacity-75">
         <div class="head">
             <h1>Menu</h1>
         </div>
 
-        <form method="GET">
+        <form method="GET" >
             <div class="form-group">
               <select name="section" class="form-control" size="1" style="overflow-y:scroll" onfocus="showOptions(this)" onchange="this.size=1;">
                 <option value="">Select Section</option>
@@ -90,9 +100,10 @@
                 {% endfor %}
             </tbody>
         </table>
+    </main>
     {% else %}
         <div class="image_container">
-            <img src="../static/images/Sad.jpg">
+            <img src="/static/images/Sad.jpg">
         </div>
         <div>
             <h3>No menu found.</h3>

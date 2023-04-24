@@ -777,3 +777,7 @@ body .dribbble img {
         padding: 0px 100px;
         width: 100%;
   }
+
+  .hover1:hover{
+    color: turquoise !important;
+  }
